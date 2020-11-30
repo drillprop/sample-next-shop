@@ -1,6 +1,6 @@
 import { Product } from '@prisma/client';
 import { GetServerSideProps } from 'next';
-import { FormEvent } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { product } from '../../../models';
 import styles from './Products.module.css';
 
@@ -9,8 +9,30 @@ type Props = {
 };
 
 const AdminProductsPage = ({ products }: Props) => {
-  const handleSubmit = (e: FormEvent) => {
+  const [fields, setFields] = useState({
+    name: '',
+    category: '',
+    price: 0,
+  });
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.currentTarget;
+    const fixedValue = name === 'priceCents' ? parseInt(value) : value;
+    setFields({
+      ...fields,
+      [name]: fixedValue,
+    });
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    await fetch(`/api/admin/products/create`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(fields),
+    });
   };
   return (
     <div>
@@ -27,15 +49,30 @@ const AdminProductsPage = ({ products }: Props) => {
       <form onSubmit={handleSubmit} className={styles.newProductForm}>
         <label>
           Product name
-          <input placeholder='name' type='text' name='name' />
+          <input
+            placeholder='name'
+            onChange={handleChange}
+            type='text'
+            name='name'
+          />
         </label>
         <label>
           Product category
-          <input placeholder='category' type='text' name='category' />
+          <input
+            placeholder='category'
+            onChange={handleChange}
+            type='text'
+            name='category'
+          />
         </label>
         <label>
           Product price
-          <input placeholder='price' type='text' name='price' />
+          <input
+            placeholder='priceCents'
+            onChange={handleChange}
+            type='text'
+            name='priceCents'
+          />
         </label>
         <button type='submit'>Add product</button>
       </form>
