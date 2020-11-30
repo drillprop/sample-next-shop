@@ -7,7 +7,7 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-ts"
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -15,4 +15,11 @@ model User {
   createdAt DateTime @default(now())
   email     String   @unique
   name      String?
+}
+
+model Product {
+  id         Int    @id @default(autoincrement())
+  name       String
+  category   String
+  priceCents Int
 }
