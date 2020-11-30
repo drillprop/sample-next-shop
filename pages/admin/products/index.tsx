@@ -1,8 +1,8 @@
+import { Product } from '@prisma/client';
 import { GetServerSideProps } from 'next';
-import { PrismaClient, Product } from '@prisma/client';
-import styles from './Products.module.css';
 import { FormEvent } from 'react';
-const prisma = new PrismaClient();
+import { product } from '../../../models';
+import styles from './Products.module.css';
 
 type Props = {
   products: Product[];
@@ -44,7 +44,7 @@ const AdminProductsPage = ({ products }: Props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const products = await prisma.product.findMany();
+  const products = await product.findMany();
   return {
     props: {
       products,
