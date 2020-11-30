@@ -1,7 +1,9 @@
 import { Product } from '@prisma/client';
 import { GetServerSideProps } from 'next';
 import { ChangeEvent, FormEvent, useState } from 'react';
+import useSWR from 'swr';
 import { product } from '../../../models';
+import { fetcher } from '../../../utils/fetcher';
 import styles from './Products.module.css';
 
 type Props = {
@@ -9,6 +11,12 @@ type Props = {
 };
 
 const AdminProductsPage = ({ products }: Props) => {
+  const { data, error } = useSWR<Product[]>('/api/admin/products/', fetcher, {
+    initialData: products,
+    refreshInterval: 3000,
+  });
+
+  console.log({ data });
   const [fields, setFields] = useState({
     name: '',
     category: '',
@@ -38,13 +46,14 @@ const AdminProductsPage = ({ products }: Props) => {
     <div>
       <h1>Admin products page</h1>
       <ul>
-        {products.map((product) => {
-          return (
-            <li className={styles.productItem} key={product.id}>
-              {product.name} {product.priceCents}
-            </li>
-          );
-        })}
+        {data &&
+          data.map((product: Product) => {
+            return (
+              <li className={styles.productItem} key={product.id}>
+                {product.name} {product.priceCents}
+              </li>
+            );
+          })}
       </ul>
       <form onSubmit={handleSubmit} className={styles.newProductForm}>
         <label>
