@@ -7,14 +7,15 @@ type Props = {
 };
 
 const SingleAdminProductPage = ({ product }: Props) => {
-  console.log(product);
-  return (
+  return product ? (
     <div>
       <h1>Admin product</h1>
       <h2>{product.name}</h2>
       <p>{product.priceCents}</p>
       <p>{product.category}</p>
     </div>
+  ) : (
+    <div>no product</div>
   );
 };
 
@@ -26,6 +27,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
     props: {
       product: singleProduct,
     },
+    revalidate: 10,
   };
 };
 
@@ -36,7 +38,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }));
   return {
     paths,
-    fallback: 'blocking',
+    fallback: false,
   };
 };
 export default SingleAdminProductPage;
