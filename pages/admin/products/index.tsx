@@ -4,6 +4,7 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import useSWR from 'swr';
 import { product } from '../../../models';
 import { fetcher } from '../../../utils/fetcher';
+import { getSession, signIn, signOut, useSession } from 'next-auth/client';
 import styles from './Products.module.css';
 
 type Props = {
@@ -11,12 +12,13 @@ type Props = {
 };
 
 const AdminProductsPage = ({ products }: Props) => {
+  const [session] = useSession();
+
   const { data, error } = useSWR<Product[]>('/api/admin/products/', fetcher, {
     initialData: products,
     refreshInterval: 3000,
   });
 
-  console.log({ data });
   const [fields, setFields] = useState({
     name: '',
     category: '',
@@ -45,6 +47,8 @@ const AdminProductsPage = ({ products }: Props) => {
   return (
     <div>
       <h1>Admin products page</h1>
+      <p> you are logged in as {session?.user.email}</p>
+      <button onClick={() => signOut()}>Logout</button>
       <ul>
         {data &&
           data.map((product: Product) => {
@@ -90,6 +94,13 @@ const AdminProductsPage = ({ products }: Props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+  if (!session) {
+    const { res } = context;
+    res.setHeader('location', '/api/auth/signin');
+    res.statusCode = 302;
+    res.end();
+  }
   const products = await product.findMany();
   return {
     props: {
