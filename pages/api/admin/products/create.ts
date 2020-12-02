@@ -3,7 +3,6 @@ import { product } from '../../../../models';
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { name, category, priceCents } = req.body;
-  console.log(req.body);
   const newProduct = await product.create({
     data: {
       name,
